@@ -10,6 +10,11 @@ func (app *application) routes() *httprouter.Router {
 	// Initialize a new httprouter router instance.
 	router := httprouter.New()
 
+	// Custom error handler for 404 not found and 405 method not
+	// allowed error responses.
+	router.NotFound = http.HandlerFunc(app.notFoundResponse)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
+
 	// Register the relevant methods.
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/invoices", app.createInvoiceHandler)
