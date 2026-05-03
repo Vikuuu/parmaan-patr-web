@@ -8,10 +8,6 @@ import (
 	"github.com/Vikuuu/parmaan-patr-web/internal/data"
 )
 
-func (app *application) createInvoiceHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new invoice")
-}
-
 func (app *application) showInvoiceHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -33,4 +29,24 @@ func (app *application) showInvoiceHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) createInvoiceHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		ID         int64     `json:"id"`
+		CreatedAt  time.Time `json:"created_at"`
+		UpdatedAt  time.Time `json:"updated_at"`
+		To         string    `json:"to"`
+		From       string    `json:"from"`
+		Items      []string  `json:"items"`
+		TotalPrice uint32    `json:"total_price"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	fmt.Fprintln(w, "%+v\n", input)
 }
