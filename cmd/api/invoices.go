@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/Vikuuu/parmaan-patr-web/internal/data"
 )
 
 func (app *application) createInvoiceHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,5 +19,23 @@ func (app *application) showInvoiceHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	fmt.Fprintf(w, "show the details of invoice %d\n", id)
+	invoice := data.Invoice{
+		ID:         id,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+		To:         "user1",
+		From:       "user2",
+		Items:      []string{"shirt", "pant"},
+		TotalPrice: uint32(1234),
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"invoice": invoice}, nil)
+	if err != nil {
+		app.logger.Println(err)
+		http.Error(
+			w,
+			"the server encountered a problem and could not process your request",
+			http.StatusInternalServerError,
+		)
+	}
 }
