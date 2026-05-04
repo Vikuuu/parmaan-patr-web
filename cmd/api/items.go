@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Vikuuu/parmaan-patr-web/internal/data"
+	"github.com/Vikuuu/parmaan-patr-web/internal/validator"
 )
 
 func (app *application) showItemHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,5 +46,19 @@ func (app *application) createItemHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	item := &data.Item{
+		Name:   input.Name,
+		HsnSac: input.HsnSac,
+		Gst:    input.Gst,
+		Price:  input.Price,
+	}
+
+	// Initialize a new Validator instance.
+	v := validator.New()
+
+	if data.ValidateItem(v, item); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
 	fmt.Fprintln(w, "%+v\n", input)
 }
