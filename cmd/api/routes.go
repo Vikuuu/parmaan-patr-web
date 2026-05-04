@@ -17,8 +17,14 @@ func (app *application) routes() *httprouter.Router {
 
 	// Register the relevant methods.
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
+
+	// Invoice related paths
 	router.HandlerFunc(http.MethodPost, "/v1/invoices", app.createInvoiceHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/invoices/:id", app.showInvoiceHandler)
+
+	// Items related paths
+	router.HandlerFunc(http.MethodPost, "/v1/items", app.createItemHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/items/:id", app.showItemHandler)
 
 	return router
 }
