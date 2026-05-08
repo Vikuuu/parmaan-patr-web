@@ -1,2 +1,2 @@
 run:
-	go run ./cmd/api
+	set -a && . ./.env && set +a && go run ./cmd/api
