@@ -1,0 +1,3 @@
+ALTER TABLE items DROP CONSTRAINT IF EXISTS items_hsn_check;
+ALTER TABLE items DROP CONSTRAINT IF EXISTS items_price_check;
+ALTER TABLE items DROP CONSTRAINT IF EXISTS items_gst_check;
