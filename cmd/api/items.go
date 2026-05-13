@@ -103,10 +103,10 @@ func (app *application) updateItemHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	var input struct {
-		Name   string `json:"name"`
-		HsnSac int64  `json:"hsn_sac"`
-		Gst    int64  `json:"gst"`
-		Price  int64  `json:"price"`
+		Name   *string `json:"name"`
+		HsnSac *int64  `json:"hsn_sac"`
+		Gst    *int64  `json:"gst"`
+		Price  *int64  `json:"price"`
 	}
 
 	err = app.readJSON(w, r, &input)
@@ -116,11 +116,22 @@ func (app *application) updateItemHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Copy the values from the request body to the appropriate fields of the item
-	// record.
-	item.Name = input.Name
-	item.HsnSac = input.HsnSac
-	item.Gst = input.Gst
-	item.Price = input.Price
+	// record. If the input value in nil then we know that no corresponding
+	// key/value pair was provided in the JSON request body. So we move on
+	// leave the item record unchanged. Otherwise, we update the item
+	// record with the new value provided.
+	if input.Name != nil {
+		item.Name = *input.Name
+	}
+	if input.HsnSac != nil {
+		item.HsnSac = *input.HsnSac
+	}
+	if input.Gst != nil {
+		item.Gst = *input.Gst
+	}
+	if input.Price != nil {
+		item.Price = *input.Price
+	}
 
 	v := validator.New()
 	if data.ValidateItem(v, item); !v.Valid() {
