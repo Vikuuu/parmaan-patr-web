@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS items
+ADD COLUMN version integer NOT NULL DEFAULT 1;

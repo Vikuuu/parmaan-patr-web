@@ -16,6 +16,7 @@ type Item struct {
 	HsnSac    int64     `json:"hsn_sac"`
 	Gst       int64     `json:"gst"`
 	Price     int64     `json:"price"`
+	Version   int64     `json:"version"`
 }
 
 func ValidateItem(v *validator.Validator, item *Item) {
@@ -58,7 +59,7 @@ func (i ItemModel) Get(id int64) (*Item, error) {
 	}
 
 	query := `
-	SELECT id, created_at, updated_at, name, hsn, price, gst
+	SELECT id, created_at, updated_at, name, hsn, price, gst, version
 	FROM items
 	WHERE id = $1
 	`
@@ -67,6 +68,7 @@ func (i ItemModel) Get(id int64) (*Item, error) {
 	err := i.DB.QueryRow(query, id).Scan(
 		&item.ID, &item.CreatedAt, &item.UpdatedAt,
 		&item.Name, &item.HsnSac, &item.Price, &item.Gst,
+		&item.Version,
 	)
 	if err != nil {
 		switch {
@@ -82,14 +84,26 @@ func (i ItemModel) Get(id int64) (*Item, error) {
 func (i ItemModel) Update(item *Item) error {
 	query := `
 	UPDATE items
-	SET name = $1, hsn = $2, price = $3, gst = $4, updated_at = $5
-	where id = $6
-	RETURNING updated_at
+	SET name = $1, hsn = $2, price = $3, gst = $4, updated_at = $5, version = version + 1
+	where id = $6 AND version = $7
+	RETURNING version
 	`
 
-	args := []any{item.Name, item.HsnSac, item.Price, item.Gst, time.Now(), item.ID}
+	args := []any{
+		item.Name, item.HsnSac, item.Price,
+		item.Gst, time.Now(), item.ID, item.Version,
+	}
 
-	return i.DB.QueryRow(query, args...).Scan(&item.UpdatedAt)
+	err := i.DB.QueryRow(query, args...).Scan(&item.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 func (i ItemModel) Delete(id int64) error {

@@ -1,6 +1,15 @@
 run:
 	set -a && . ./.env && set +a && go run ./cmd/api
 
+build:
+	go build -o bin/web ./cmd/api
+	source .env
+	./bin/web
+
+debug:
+	go build -o bin/web-debug -gcflags="all=-N -l" ./cmd/api
+	source .env && ./bin/web-debug
+
 create-migration:
 	migrate create -seq -ext=.sql -dir=./migrations $(mig-name)
 

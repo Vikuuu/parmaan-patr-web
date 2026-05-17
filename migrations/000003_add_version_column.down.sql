@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS items
+DROP COLUMN version;
